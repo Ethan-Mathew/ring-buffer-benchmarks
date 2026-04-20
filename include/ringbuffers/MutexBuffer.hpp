@@ -7,7 +7,7 @@
 #include <optional>
 #include <utility>
 
-namespace rbb
+namespace ringbuffers
 {
 
 template <typename T, typename Allocator = std::allocator<T>>
@@ -121,4 +121,4 @@ private:
     std::condition_variable cvFull_;
 };
 
-} // namespace rbb
+} // namespace ringbuffers
