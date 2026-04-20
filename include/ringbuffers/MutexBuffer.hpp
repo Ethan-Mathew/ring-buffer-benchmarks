@@ -14,7 +14,7 @@ template <typename T, typename Allocator = std::allocator<T>>
 class MutexBuffer
 {
 public:
-    MutexBuffer(std::size_t bufferSize)
+    explicit MutexBuffer(std::size_t bufferSize)
         : capacity_{bufferSize}
     {
         buffer_ = std::allocator_traits<Allocator>::allocate(allocator_, bufferSize);
