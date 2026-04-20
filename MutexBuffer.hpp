@@ -5,6 +5,7 @@
 #include <memory>
 #include <mutex>
 #include <optional>
+#include <utility>
 
 namespace rbb
 {
@@ -19,6 +20,11 @@ public:
         buffer_ = std::allocator_traits<Allocator>::allocate(allocator_, bufferSize);
     }
 
+    MutexBuffer(const MutexBuffer&) = delete;
+    MutexBuffer& operator=(const MutexBuffer&) = delete;
+    MutexBuffer(MutexBuffer&&) = delete;
+    MutexBuffer& operator=(MutexBuffer&&) = delete;
+
     ~MutexBuffer()
     {
         std::allocator_traits<Allocator>::deallocate(allocator_, buffer_, capacity_);
@@ -28,16 +34,11 @@ public:
     {
         std::unique_lock<std::mutex> lock{mutex_};
 
-        if (count_ == capacity_)
-        {
-            cvFull_.wait(lock, [this]{return count_ != capacity_;});
-        }
-        
-        std::cout << "Pushing: " << item << std::endl;
+        cvFull_.wait(lock, [this]{return count_ != capacity_;});
 
         std::construct_at(std::addressof(buffer_[pushCursor_]), item);
-        pushCursor_ = (pushCursor_ + 1) % capacity_;
 
+        pushCursor_ = (pushCursor_ + 1) % capacity_;
         count_++;
 
         lock.unlock();
@@ -45,33 +46,29 @@ public:
         cvEmpty_.notify_one();
     }
 
-    void pop()
+    std::optional<T> pop()
     {
         std::unique_lock<std::mutex> lock{mutex_};
 
-        if (count_ == 0)
-        {
-            cvEmpty_.wait(lock, [this]{return count_ > 0;});
-        }
+        cvEmpty_.wait(lock, [this]{return count_ > 0;});
 
-        std::cout << "Popping: " << buffer_[popCursor_] << std::endl;
-
+        std::optional<T> ret = std::move(buffer_[popCursor_]);
         std::destroy_at(std::addressof(buffer_[popCursor_]));
 
         popCursor_ = (popCursor_ + 1) % capacity_;
-
         count_--;
 
         lock.unlock();
-
         cvFull_.notify_one();
+        
+        return ret;
     }
 
     bool empty() const
     {
         std::scoped_lock<std::mutex> lock{mutex_};
 
-        return pushCursor_ == popCursor_;
+        return count_ == 0;
     }
 
     std::size_t capacity() const
@@ -80,9 +77,6 @@ public:
     }
 
 private:
-
-
-
     T* buffer_;
     Allocator allocator_;
     std::size_t capacity_;
