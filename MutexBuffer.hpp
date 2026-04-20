@@ -51,27 +51,46 @@ public:
         count_++;
 
         lock.unlock();
-
-        cvEmpty_.notify_one();
     }
 
     std::optional<T> pop()
     {
         std::unique_lock<std::mutex> lock{mutex_};
 
-        cvEmpty_.wait(lock, [this]{return count_ > 0;});
+        std::optional<T> ret;
 
-        std::optional<T> ret = std::move(buffer_[popCursor_]);
-        std::destroy_at(std::addressof(buffer_[popCursor_]));
+        if (count_ > 0)
+        {
+            ret = std::move(buffer_[popCursor_]);
+            std::destroy_at(std::addressof(buffer_[popCursor_]));
 
-        popCursor_ = (popCursor_ + 1) % capacity_;
-        count_--;
+            popCursor_ = (popCursor_ + 1) % capacity_;
+            count_--;
 
-        lock.unlock();
-        cvFull_.notify_one();
+            lock.unlock();
+            cvFull_.notify_one();
+        }
         
         return ret;
     }
+
+    /*
+    void close()
+    {
+        std::unique_lock<std::mutex> lock{mutex_};
+
+        closed_ = true;
+
+        lock.unlock();
+
+        cvFull.notify_one()
+    }
+
+    bool closed() const
+    {
+        return closed_;
+    }
+    */
 
     bool empty() const
     {
@@ -92,9 +111,9 @@ private:
     std::size_t count_ = 0;
     std::size_t pushCursor_ = 0;
     std::size_t popCursor_ = 0;
+    bool closed_ = false;
     mutable std::mutex mutex_;
     std::condition_variable cvFull_;
-    std::condition_variable cvEmpty_;
 };
 
 } // namespace rbb
