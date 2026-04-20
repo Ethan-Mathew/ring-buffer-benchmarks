@@ -27,16 +27,25 @@ public:
 
     ~MutexBuffer()
     {
+        while (count_ > 0)
+        {
+            std::destroy_at(std::addressof(buffer_[popCursor_]));
+
+            popCursor_ = (popCursor_ + 1) % capacity_;
+            count_--;
+        }
+
         std::allocator_traits<Allocator>::deallocate(allocator_, buffer_, capacity_);
     }
 
-    void push(T item)
+    template <typename... Args>
+    void push(Args&&... item)
     {
         std::unique_lock<std::mutex> lock{mutex_};
 
         cvFull_.wait(lock, [this]{return count_ != capacity_;});
 
-        std::construct_at(std::addressof(buffer_[pushCursor_]), item);
+        std::construct_at(std::addressof(buffer_[pushCursor_]), std::forward<Args>(item)...);
 
         pushCursor_ = (pushCursor_ + 1) % capacity_;
         count_++;
