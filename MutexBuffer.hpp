@@ -43,7 +43,12 @@ public:
     {
         std::unique_lock<std::mutex> lock{mutex_};
 
-        cvFull_.wait(lock, [this]{return count_ != capacity_;});
+        cvFull_.wait(lock, [this]{return (count_ != capacity_) || closed_;});
+
+        if (closed_)
+        {
+            return;
+        }
 
         std::construct_at(std::addressof(buffer_[pushCursor_]), std::forward<Args>(item)...);
 
@@ -74,7 +79,6 @@ public:
         return ret;
     }
 
-    /*
     void close()
     {
         std::unique_lock<std::mutex> lock{mutex_};
@@ -83,14 +87,15 @@ public:
 
         lock.unlock();
 
-        cvFull.notify_one()
+        cvFull_.notify_all();
     }
 
     bool closed() const
     {
+        std::scoped_lock<std::mutex> lock{mutex_};
+
         return closed_;
     }
-    */
 
     bool empty() const
     {
