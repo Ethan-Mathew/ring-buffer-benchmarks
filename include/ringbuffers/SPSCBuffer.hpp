@@ -57,7 +57,11 @@ public:
 
     ~SPSCBuffer()
     {
-        // to do: destroy objects before deallocation
+        while (front())
+        {
+            pop();
+        }
+
         std::allocator_traits<Allocator>::deallocate(allocator_, buffer_, capacity_);
     }
 
@@ -65,7 +69,7 @@ public:
     bool try_emplace(Args&&... args)
     {
         const std::size_t pushCursor = pushCursor_.load(std::memory_order_seq_cst);
-        std::size_t pushCursorNext = (pushCursor + 1) % capacity_;
+        const std::size_t pushCursorNext = (pushCursor + 1) % capacity_;
 
         // Queue full
         if (pushCursorNext == popCursor_.load(std::memory_order_seq_cst))
