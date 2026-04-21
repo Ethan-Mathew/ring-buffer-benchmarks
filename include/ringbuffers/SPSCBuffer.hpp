@@ -61,7 +61,6 @@ public:
         std::allocator_traits<Allocator>::deallocate(allocator_, buffer_, capacity_);
     }
 
-    /*
     template <typename... Args>
     bool try_emplace(Args&&... args)
     {
@@ -81,7 +80,6 @@ public:
 
         return true;
     }
-        */
 
     std::size_t capacity() const
     {
