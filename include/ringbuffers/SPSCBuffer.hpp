@@ -33,7 +33,9 @@ public:
             throw std::invalid_argument("SPSCBuffer capacity must be greater than or equal to 1");
         }
         
-        capacity_ = bufferSize;
+        // Slack element for cursor arithmetic
+        capacity_ = bufferSize + 1;
+
         //
         // Come back to later for optimization!
         //
@@ -43,7 +45,7 @@ public:
         */
 
         // Add two padding cache lines to prevent contention over first and last object slots
-        buffer_ = std::allocator_traits<Allocator>::allocate(allocator_, capacity_ + 1);
+        buffer_ = std::allocator_traits<Allocator>::allocate(allocator_, capacity_);
 
         //assert(difference between atomic members is equal to a cache line)
     }
