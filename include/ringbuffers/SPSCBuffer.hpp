@@ -81,12 +81,12 @@ public:
 
         return true;
     }
+        */
 
     std::size_t capacity() const
     {
         return capacity_ - 1;
     }
-     */
 
 private:
     alignas(cacheLineSize) T* buffer_;
