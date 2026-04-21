@@ -81,6 +81,16 @@ public:
         return true;
     }
 
+    bool try_push(const T& value)
+    {
+        return try_emplace(value);
+    }
+
+    bool try_push(T&& value)
+    {
+        return try_emplace(std::move(value));
+    }
+
     std::size_t capacity() const
     {
         return capacity_ - 1;
