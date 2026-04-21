@@ -91,6 +91,18 @@ public:
         return try_emplace(std::move(value));
     }
 
+    // Assumes front() has been called to avoid pop on empty();
+    void pop()
+    {
+        const std::size_t popCursor = popCursor_.load(std::memory_order_seq_cst);
+
+        assert(popCursor != pushCursor_.load(std::memory_order_seq_cst));
+
+        std::destroy_at(std::addressof(buffer_[popCursor]));
+
+        popCursor_.store((popCursor + 1) % capacity_, std::memory_order_seq_cst);
+    }
+
     std::size_t capacity() const
     {
         return capacity_ - 1;
