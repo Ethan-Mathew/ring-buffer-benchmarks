@@ -66,6 +66,19 @@ public:
         std::allocator_traits<Allocator>::deallocate(allocator_, buffer_, capacity_);
     }
 
+    template <typename... Args>
+    void emplace(Args&&... args)
+    {
+        const std::size_t pushCursor = pushCursor_.load(std::memory_order_seq_cst);
+        const std::size_t pushCursorNext = (pushCursor + 1) % capacity_;
+
+        while (pushCursorNext == popCursor_.load(std::memory_order_seq_cst));
+
+        std::construct_at(std::addressof(buffer_[pushCursor]), 
+                          std::forward<Args>(args)...);
+
+        pushCursor_.store(pushCursorNext, std::memory_order_seq_cst);
+    }
 
     template <typename... Args>
     bool try_emplace(Args&&... args)
@@ -85,6 +98,13 @@ public:
         pushCursor_.store(pushCursorNext, std::memory_order_seq_cst);
 
         return true;
+    }
+
+    template <typename U>
+    requires std::is_constructible_v<T, U&&>
+    void push(U&& value)
+    {
+        emplace(std::forward<U>(value));
     }
 
     template <typename U>
