@@ -66,17 +66,17 @@ TEST_F(MutexBufferTest, PopRemovesElement)
 
 TEST_F(MutexBufferTest, CanFillToCapacity)
 {
-    for (std::size_t i = 0; i < bufferSize; i++)
+    for (int i = 0; i < bufferSize; i++)
     {
-        ASSERT_TRUE(mutexBuffer_.try_push(static_cast<int>(i)));
+        ASSERT_TRUE(mutexBuffer_.try_push(i));
     }
 }
 
 TEST_F(MutexBufferTest, TryPushOnFullReturnsFalse)
 {
-    for (std::size_t i = 0; i < bufferSize; i++)
+    for (int i = 0; i < bufferSize; i++)
     {
-        mutexBuffer_.push(static_cast<int>(i));
+        mutexBuffer_.push(i);
     }
 
     ASSERT_FALSE(mutexBuffer_.try_push(bufferSize));
@@ -84,9 +84,9 @@ TEST_F(MutexBufferTest, TryPushOnFullReturnsFalse)
 
 TEST_F(MutexBufferTest, CanPushAgainAfterPop)
 {
-    for (std::size_t i = 0; i < bufferSize; i++)
+    for (int i = 0; i < bufferSize; i++)
     {
-        mutexBuffer_.push(static_cast<int>(i));
+        mutexBuffer_.push(i);
     }
 
     ASSERT_FALSE(mutexBuffer_.try_push(bufferSize));
