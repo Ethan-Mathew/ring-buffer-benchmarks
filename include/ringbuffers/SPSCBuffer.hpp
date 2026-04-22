@@ -7,6 +7,7 @@
 #include <memory>
 #include <new>
 #include <stdexcept>
+#include <type_traits>
 #include <utility>
 
 namespace ringbuffers
@@ -65,6 +66,7 @@ public:
         std::allocator_traits<Allocator>::deallocate(allocator_, buffer_, capacity_);
     }
 
+
     template <typename... Args>
     bool try_emplace(Args&&... args)
     {
@@ -85,14 +87,11 @@ public:
         return true;
     }
 
-    bool try_push(const T& value)
+    template <typename U>
+    requires std::is_constructible_v<T, U&&>
+    bool try_push(U&& value)
     {
-        return try_emplace(value);
-    }
-
-    bool try_push(T&& value)
-    {
-        return try_emplace(std::move(value));
+        return try_emplace(std::forward<U>(value));
     }
 
     T* front()
