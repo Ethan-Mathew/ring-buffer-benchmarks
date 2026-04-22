@@ -149,7 +149,7 @@ public:
         closed_.store(true, std::memory_order_seq_cst);
     }
 
-    void closed() const
+    bool closed() const
     {
         return closed_.load(std::memory_order_seq_cst);
     }
