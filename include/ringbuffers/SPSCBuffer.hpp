@@ -125,6 +125,16 @@ public:
         return capacity_ - 1;
     }
 
+    void close()
+    {
+        closed_.store(true, std::memory_order_seq_cst);
+    }
+
+    void closed() const
+    {
+        return closed_.load(std::memory_order_seq_cst);
+    }
+
 private:
     alignas(cacheLineSize) T* buffer_;
 
@@ -135,6 +145,8 @@ private:
     // std::size_t pushCursorCache_;
 
     std::size_t capacity_;
+    std::atomic<bool> closed_ = false;
+
     [[no_unique_address]] Allocator allocator_;
 
     // Sanity checks for class alignment
