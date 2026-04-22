@@ -1,12 +1,12 @@
+#include <gtest/gtest.h>
+
+#include <ringbuffers/SPSCBuffer.hpp>
+
 #include <chrono>
 #include <cstddef>
 #include <memory>
 #include <thread>
 #include <utility>
-
-#include <gtest/gtest.h>
-
-#include <ringbuffers/SPSCBuffer.hpp>
 
 using namespace ringbuffers;
 using namespace std::chrono_literals;
