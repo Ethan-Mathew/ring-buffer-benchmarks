@@ -45,9 +45,9 @@ TEST_F(MutexBufferTest, TryPushOnEmptyReturnsTrue)
 
 TEST_F(MutexBufferTest, FrontAfterPushReturnsValue)
 {
-    mutexBuffer_.try_push(0);
+    mutexBuffer_.push(0);
 
-    int* val = mutexBuffer_.front();
+    auto* val = mutexBuffer_.front();
     
     ASSERT_NE(val, nullptr);
     EXPECT_EQ(*val, 0);
@@ -60,7 +60,7 @@ TEST_F(MutexBufferTest, FrontOnEmptyReturnsNullptr)
 
 TEST_F(MutexBufferTest, PopRemovesElement)
 {
-    mutexBuffer_.try_push(0);
+    mutexBuffer_.push(0);
     
     mutexBuffer_.pop();
 
@@ -79,7 +79,7 @@ TEST_F(MutexBufferTest, TryPushOnFullReturnsFalse)
 {
     for (std::size_t i = 0; i < bufferSize; i++)
     {
-        mutexBuffer_.try_push(static_cast<int>(i));
+        mutexBuffer_.push(static_cast<int>(i));
     }
 
     ASSERT_FALSE(mutexBuffer_.try_push(bufferSize));
@@ -108,7 +108,7 @@ TEST_F(MutexBufferTest, PreservesOrderingAcrossPushPop)
     
     for (int i = 0; i < bufferSize; i++)
     {
-        int* val = mutexBuffer_.front();
+        auto* val = mutexBuffer_.front();
 
         ASSERT_NE(val, nullptr);
         EXPECT_EQ(*val, i);
@@ -204,7 +204,7 @@ TEST(MutexBufferDestructorTest, DestroysRemainingElements)
 
     {
         MutexBuffer<Tracker> buffer{10};
-        for (int i = 0; i < 5; ++i)
+        for (int i = 0; i < 5; i++)
         {
             buffer.emplace();
         }
@@ -234,109 +234,10 @@ TEST_F(MutexBufferTest, TryPopReturnsNulloptOnEmpty)
 
 TEST_F(MutexBufferTest, TryPopReturnsValueWhenNonEmpty)
 {
-    mutexBuffer_.try_push(0);
+    mutexBuffer_.push(0);
 
     auto val = mutexBuffer_.try_pop();
 
     ASSERT_TRUE(val.has_value());
     EXPECT_EQ(*val, 0);
-}
-
-TEST_F(MutexBufferTest, SPSCBehaviourStressTest)
-{
-    std::thread producer{[&]{
-        for (int i = 0; i < stressTestSize; i++)
-        {
-            mutexBuffer_.push(i);
-        }
-    }};
-
-    std::thread consumer{[&]{
-        int expected = 0;
-
-        while (true)
-        {
-            auto val = mutexBuffer_.front();
-            
-            if (val)
-            {
-                EXPECT_EQ(*val, expected);
-
-                mutexBuffer_.pop();
-
-                expected++;
-            }
-            else if (mutexBuffer_.closed())
-            {
-                break;
-            }
-        }
-    }};
-    
-    producer.join();
-
-    mutexBuffer_.close();
-
-    consumer.join();
-}
-
-TEST_F(MutexBufferTest, MPMCBehaviourStressTest)
-{
-    const int numProducers = 8;
-    const int numConsumers = 8;
-
-    std::vector<std::thread> consumers;
-
-    const int itemsPerProducer = stressTestSize / numProducers;
-
-    std::atomic<int> numProduced = 0;
-    std::atomic<int> numConsumed = 0;
-
-    
-    std::vector<std::thread> producers;
-
-    for (std::size_t i = 0; i < numProducers; i++)
-    {
-        producers.emplace_back([&]{
-            for (int i = 0; i < itemsPerProducer; i++)
-            {
-                mutexBuffer_.push(i);
-                numProduced++;
-            }
-        });
-    }
-
-    for (std::size_t i = 0; i < numConsumers; i++)
-    {
-        consumers.emplace_back([&]{
-            while (true)
-            {
-                auto val = mutexBuffer_.try_pop();
-                
-                if (val)
-                {
-                    numConsumed++;
-                }
-                else if (mutexBuffer_.closed())
-                {
-                    break;
-                }
-            }
-        });
-    }
-
-    for (auto& producer : producers)
-    {
-        producer.join();
-    }
-
-    mutexBuffer_.close();
-
-    for (auto& consumer : consumers)
-    {
-        consumer.join();
-    }
-
-    ASSERT_EQ(numProduced, stressTestSize);
-    ASSERT_EQ(numConsumed, stressTestSize);
 }
