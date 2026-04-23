@@ -8,15 +8,17 @@ FetchContent_Declare(
 set(gtest_force_shared_crt ON CACHE BOOL "" FORCE)
 FetchContent_MakeAvailable(googletest)
 
-add_executable(Tests
-    MutexBufferTest.cpp
-    MutexBufferStressTest.cpp
+add_executable(Tests 
+    stress/MutexBufferStressTest.cpp
+    stress/SPSCBufferStressTest.cpp
+    unit/MutexBufferTest.cpp
+    unit/SPSCBufferTest.cpp
 )
 
 target_include_directories(Tests PRIVATE ${PROJECT_SOURCE_DIR}/include)
 
 target_link_libraries(Tests
-    PRIVATE
+    PUBLIC
         GTest::gtest_main
 )
 
