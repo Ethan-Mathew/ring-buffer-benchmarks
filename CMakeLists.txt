@@ -9,3 +9,7 @@ include(CTest)
 if (TESTING)
     add_subdirectory(tests)
 endif()
+
+if (BENCH)
+    add_subdirectory(bench)
+endif()

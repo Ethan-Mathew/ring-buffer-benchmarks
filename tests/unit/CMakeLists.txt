@@ -8,8 +8,6 @@ target_include_directories(UnitTests
         ${PROJECT_SOURCE_DIR}/include
 )
 
-
-
 target_link_libraries(UnitTests
     PRIVATE
         GTest::gtest_main
