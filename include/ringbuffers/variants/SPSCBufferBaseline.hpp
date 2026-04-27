@@ -1,3 +1,8 @@
+/*
+    ABSOLUTE BASELINE FOR STUDY
+    ZERO PERFORMANCE OPTIMIZATIONS
+*/
+
 #pragma once
 
 #include <atomic>
@@ -14,7 +19,7 @@ namespace ringbuffers::variants
 {
 
 template <typename T, typename Allocator = std::allocator<T>>
-class SPSCBufferUnoptimized
+class SPSCBufferBaseline
 {
 // If there exists native support for std::hardware_destructive_interference_size
 #ifdef __cpp_lib_hardware_interference_size
@@ -27,11 +32,11 @@ class SPSCBufferUnoptimized
     static constexpr std::size_t padding = (cacheLineSize + sizeof(T) - 1) / sizeof(T);
 
 public:
-    explicit SPSCBuffer(std::size_t bufferSize)
+    explicit SPSCBufferBaseline(std::size_t bufferSize)
     {
         if (bufferSize < 1)
         {
-            throw std::invalid_argument("SPSCBuffer capacity must be greater than or equal to 1");
+            throw std::invalid_argument("SPSCBufferBaseline capacity must be greater than or equal to 1");
         }
         
         // Slack element for cursor arithmetic
@@ -51,12 +56,12 @@ public:
         //assert(difference between atomic members is equal to a cache line)
     }
 
-    SPSCBuffer(const SPSCBuffer&) = delete;
-    SPSCBuffer& operator=(const SPSCBuffer&) = delete;
-    SPSCBuffer(SPSCBuffer&&) = delete;
-    SPSCBuffer& operator=(SPSCBuffer&&) = delete;
+    SPSCBufferBaseline(const SPSCBufferBaseline&) = delete;
+    SPSCBufferBaseline& operator=(const SPSCBufferBaseline&) = delete;
+    SPSCBufferBaseline(SPSCBufferBaseline&&) = delete;
+    SPSCBufferBaseline& operator=(SPSCBufferBaseline&&) = delete;
 
-    ~SPSCBuffer()
+    ~SPSCBufferBaseline()
     {
         while (front())
         {
@@ -155,7 +160,7 @@ public:
     }
 
 private:
-    alignas(cacheLineSize) T* buffer_;
+    T* buffer_;
 
     std::atomic<std::size_t> pushCursor_ = 0;
     // std::size_t popCursorCache_;
@@ -169,10 +174,10 @@ private:
     [[no_unique_address]] Allocator allocator_;
 
     // Sanity checks for class alignment
-    //static_assert(alignof(SPSCBuffer) == cacheLineSize, 
-    //            "SPSCBuffer is not aligned along native cache lines");
-    //static_assert(sizeof(SPSCBuffer) >= 4 * cacheLineSize, 
-    //            "SPSCBuffer's size is less than four aligned atomics");
+    //static_assert(alignof(SPSCBufferBaseline) == cacheLineSize, 
+    //            "SPSCBufferBaseline is not aligned along native cache lines");
+    //static_assert(sizeof(SPSCBufferBaseline) >= 4 * cacheLineSize, 
+    //            "SPSCBufferBaseline's size is less than four aligned atomics");
 
 };
 
