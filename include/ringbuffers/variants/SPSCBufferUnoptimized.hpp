@@ -10,11 +10,11 @@
 #include <type_traits>
 #include <utility>
 
-namespace ringbuffers
+namespace ringbuffers::variants
 {
 
 template <typename T, typename Allocator = std::allocator<T>>
-class SPSCBuffer
+class SPSCBufferUnoptimized
 {
 // If there exists native support for std::hardware_destructive_interference_size
 #ifdef __cpp_lib_hardware_interference_size
@@ -176,4 +176,4 @@ private:
 
 };
 
-} // namespace ringbuffers
+} // namespace ringbuffers::variants
