@@ -6,7 +6,6 @@
 #pragma once
 
 #include <atomic>
-#include <bit>
 #include <cassert>
 #include <cstddef>
 #include <memory>
@@ -21,16 +20,6 @@ namespace ringbuffers::variants
 template <typename T, typename Allocator = std::allocator<T>>
 class SPSCBufferBaseline
 {
-// If there exists native support for std::hardware_destructive_interference_size
-#ifdef __cpp_lib_hardware_interference_size
-    static constexpr std::size_t cacheLineSize = std::hardware_destructive_interference_size;
-#else
-    static constexpr std::size_t cacheLineSize = 64;
-#endif
-
-    // Calculate # of objects per cache line (rounded up)
-    static constexpr std::size_t padding = (cacheLineSize + sizeof(T) - 1) / sizeof(T);
-
 public:
     explicit SPSCBufferBaseline(std::size_t bufferSize)
     {
@@ -42,18 +31,7 @@ public:
         // Slack element for cursor arithmetic
         capacity_ = bufferSize + 1;
 
-        //
-        // Come back to later for optimization!
-        //
-        /*
-        // Enforce capacity == power of two
-        capacity_ = std::bit_ceil(bufferSize);
-        */
-
-        // Add two padding cache lines to prevent contention over first and last object slots
         buffer_ = std::allocator_traits<Allocator>::allocate(allocator_, capacity_);
-
-        //assert(difference between atomic members is equal to a cache line)
     }
 
     SPSCBufferBaseline(const SPSCBufferBaseline&) = delete;
@@ -77,6 +55,7 @@ public:
         const std::size_t pushCursor = pushCursor_.load(std::memory_order_seq_cst);
         const std::size_t pushCursorNext = (pushCursor + 1) % capacity_;
 
+        // Spin until at least one space ahead of pushCursor
         while (pushCursorNext == popCursor_.load(std::memory_order_seq_cst));
 
         std::construct_at(std::addressof(buffer_[pushCursor]), 
@@ -163,22 +142,12 @@ private:
     T* buffer_;
 
     std::atomic<std::size_t> pushCursor_ = 0;
-    // std::size_t popCursorCache_;
-
     std::atomic<std::size_t> popCursor_ = 0;
-    // std::size_t pushCursorCache_;
-
+    
     std::size_t capacity_;
     std::atomic<bool> closed_ = false;
 
     [[no_unique_address]] Allocator allocator_;
-
-    // Sanity checks for class alignment
-    //static_assert(alignof(SPSCBufferBaseline) == cacheLineSize, 
-    //            "SPSCBufferBaseline is not aligned along native cache lines");
-    //static_assert(sizeof(SPSCBufferBaseline) >= 4 * cacheLineSize, 
-    //            "SPSCBufferBaseline's size is less than four aligned atomics");
-
 };
 
 } // namespace ringbuffers::variants
