@@ -14,11 +14,18 @@ FetchContent_MakeAvailable(
     googlebenchmark
 )
 
-add_executable(Bench testbench2.cpp)
+add_executable(Bench
+    variants/staged/SPSCBufferStage6Bench.cpp
+    #variants/BenchSPSCBufferBaseline.cpp
+    #variants/BenchSPSCBufferBranchWrapIndices.cpp
+    #variants/BenchSPSCBufferMonoBitmask.cpp
+    #variants/BenchSPSCBufferMonoModulus.cpp
+)
 
 target_include_directories(Bench
     PRIVATE
         ${PROJECT_SOURCE_DIR}/include
+        ${PROJECT_SOURCE_DIR}/bench
 )
 
 target_link_libraries(Bench
