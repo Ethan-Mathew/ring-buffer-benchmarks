@@ -90,6 +90,7 @@ static void BM_SPSCBufferMemOrder(benchmark::State& state)
         ->DisplayAggregatesOnly(true)
 
 REGISTER_SPSC_BUFFER_MEM_ORDER_BENCHMARK(bench::data::BenchPayload<1>);
+REGISTER_SPSC_BUFFER_MEM_ORDER_BENCHMARK(bench::data::BenchPayload<2>);
 REGISTER_SPSC_BUFFER_MEM_ORDER_BENCHMARK(bench::data::BenchPayload<4>);
 REGISTER_SPSC_BUFFER_MEM_ORDER_BENCHMARK(bench::data::BenchPayload<8>);
 REGISTER_SPSC_BUFFER_MEM_ORDER_BENCHMARK(bench::data::BenchPayload<16>);

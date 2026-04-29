@@ -90,6 +90,7 @@ static void BM_SPSCBufferStage6(benchmark::State& state)
         ->DisplayAggregatesOnly(true)
 
 REGISTER_SPSC_BUFFER_STAGE_6_BENCHMARK(bench::data::BenchPayload<1>);
+REGISTER_SPSC_BUFFER_STAGE_6_BENCHMARK(bench::data::BenchPayload<2>);
 REGISTER_SPSC_BUFFER_STAGE_6_BENCHMARK(bench::data::BenchPayload<4>);
 REGISTER_SPSC_BUFFER_STAGE_6_BENCHMARK(bench::data::BenchPayload<8>);
 REGISTER_SPSC_BUFFER_STAGE_6_BENCHMARK(bench::data::BenchPayload<16>);

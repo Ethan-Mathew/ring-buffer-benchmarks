@@ -2,8 +2,8 @@
 
 #include "ringbuffers/MutexBuffer.hpp"
 
-#include "BenchConfig.hpp"
-#include "BenchPayload.hpp"
+#include "data/BenchData.hpp"
+#include "data/BenchPayload.hpp"
 
 #include <atomic>
 #include <cstddef>
@@ -18,7 +18,7 @@ namespace
 template <typename T>
 static void BM_MutexBuffer(benchmark::State& state)
 {
-    constexpr std::size_t itemsPerIteration = bench::config::itemsPerIteration;
+    constexpr std::size_t itemsPerIteration = bench::data::itemsPerIteration;
 
     for (auto _ : state)
     {
@@ -89,9 +89,10 @@ static void BM_MutexBuffer(benchmark::State& state)
         ->Repetitions(20)                            \
         ->DisplayAggregatesOnly(true)
 
-REGISTER_MUTEX_BUFFER_BENCHMARK(bench::BenchPayload<1>);
-REGISTER_MUTEX_BUFFER_BENCHMARK(bench::BenchPayload<4>);
-REGISTER_MUTEX_BUFFER_BENCHMARK(bench::BenchPayload<8>);
-REGISTER_MUTEX_BUFFER_BENCHMARK(bench::BenchPayload<16>);
-REGISTER_MUTEX_BUFFER_BENCHMARK(bench::BenchPayload<64>);
-REGISTER_MUTEX_BUFFER_BENCHMARK(bench::BenchPayload<256>);
+REGISTER_MUTEX_BUFFER_BENCHMARK(bench::data::BenchPayload<1>);
+REGISTER_MUTEX_BUFFER_BENCHMARK(bench::data::BenchPayload<2>);
+REGISTER_MUTEX_BUFFER_BENCHMARK(bench::data::BenchPayload<4>);
+REGISTER_MUTEX_BUFFER_BENCHMARK(bench::data::BenchPayload<8>);
+REGISTER_MUTEX_BUFFER_BENCHMARK(bench::data::BenchPayload<16>);
+REGISTER_MUTEX_BUFFER_BENCHMARK(bench::data::BenchPayload<64>);
+REGISTER_MUTEX_BUFFER_BENCHMARK(bench::data::BenchPayload<256>);
