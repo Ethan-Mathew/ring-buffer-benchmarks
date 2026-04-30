@@ -5,6 +5,6 @@
 namespace bench::data
 {
 
-static constexpr std::size_t itemsPerIteration = 1'000'000;
+static constexpr std::size_t itemsPerIteration = 10'000'000;
 
 } // namespace bench::data
