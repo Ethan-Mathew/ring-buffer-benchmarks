@@ -9,7 +9,7 @@ repo_root = script_dir.parent
 file_name = input("Source: ")
 
 source_file = repo_root / "results" / "raw" / file_name
-output_file = repo_root / "results" / "derived" / f"{Path(file_name).stem}.csv"
+output_file = repo_root / "results" / "tabulated" / f"{Path(file_name).stem}.csv"
 
 with source_file.open("r") as file:
     data = json.load(file)
