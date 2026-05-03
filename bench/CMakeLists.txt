@@ -15,11 +15,8 @@ FetchContent_MakeAvailable(
 )
 
 add_executable(Bench
-    variants/staged/SPSCBufferStage6Bench.cpp
-    #variants/BenchSPSCBufferBaseline.cpp
-    #variants/BenchSPSCBufferBranchWrapIndices.cpp
-    #variants/BenchSPSCBufferMonoBitmask.cpp
-    #variants/BenchSPSCBufferMonoModulus.cpp
+    MutexBufferBench.cpp
+    SPSCBufferBench.cpp
 )
 
 target_include_directories(Bench
@@ -32,3 +29,5 @@ target_link_libraries(Bench
     PRIVATE
         benchmark::benchmark_main
 )
+
+target_compile_features(Bench PRIVATE cxx_std_20)
