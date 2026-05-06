@@ -92,7 +92,6 @@ def plot_speedups(capacity):
     ax.legend()
 
     ax.set_xscale("log")
-    #ax.set_yscale("log")
 
     ax.set_xlabel("Payload (Bytes)")
     ax.set_ylabel("Speedup")
