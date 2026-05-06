@@ -15,8 +15,14 @@ FetchContent_MakeAvailable(
 )
 
 add_executable(Bench
-    MutexBufferBench.cpp
-    SPSCBufferBench.cpp
+    variants/SPSCBufferBaselineBench.cpp
+    variants/isolated/SPSCBufferBranchWrapIndicesBench.cpp
+    variants/isolated/SPSCBufferCacheAlignmentBench.cpp
+    variants/isolated/SPSCBufferCachedCursorsBench.cpp
+    variants/isolated/SPSCBufferMemOrderBench.cpp
+    variants/isolated/SPSCBufferMonoBitmaskBench.cpp
+    variants/isolated/SPSCBufferMonoModulusBench.cpp
+    variants/isolated/SPSCBufferPaddingBench.cpp
 )
 
 target_include_directories(Bench
