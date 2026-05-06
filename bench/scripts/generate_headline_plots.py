@@ -119,7 +119,7 @@ def speedup_heatmap():
     plt.close(fig)
 
 capacity = 4096
-payload_size = 8
+payload_size = 4
 
 plot_fixed_capacity(capacity)
 plot_fixed_payload(payload_size)

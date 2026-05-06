@@ -93,7 +93,7 @@ def plot_speedups(capacity):
     ax.set_xscale("log")
 
     ax.set_xlabel("Payload (Bytes)")
-    ax.set_ylabel("Speedup")
+    ax.set_ylabel("Speedup Factor")
 
     fig.suptitle(f"SPSCBuffer With Staged Optimizations Speedup VS Baseline")
 
