@@ -151,10 +151,7 @@ private:
     T* buffer_;
 
     alignas(cacheLineSize) std::atomic<std::size_t> pushCursor_ = 0;
-    // std::size_t popCursorCache_;
-
     alignas(cacheLineSize) std::atomic<std::size_t> popCursor_ = 0;
-    // std::size_t pushCursorCache_;
 
     std::size_t capacity_;
     std::atomic<bool> closed_ = false;
