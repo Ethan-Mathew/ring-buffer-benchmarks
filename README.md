@@ -5,6 +5,7 @@
 - [Overview](#overview)
 - [Applications](#applications)
 - [Implemented Buffers](#implemented-buffers)
+- [SPSCBuffer API](#spscbuffer-api)
 - [Correctness Testing](#correctness-testing)
 - [Benchmark Methodology](#benchmark-methodology)
 - [Main Results](#main-results)
@@ -43,6 +44,28 @@ Of course, lock-free FIFO architectures find their way into other applications t
 
 - **MutexBuffer** - A standard lock-protected ring buffer with SPSC and MPMC capabilities. Its implementation is simple and can block, using `std::mutex`, `std::scoped_lock`, `std::unique_lock`, and `std::condition_variable` to serialize access to shared data.
 - **SPSCBuffer** - An optimized SPSC lock-free ring buffer making. Being lock-free, its implementation uses only `std::atomic<std::size_t>` to manage buffer arithmetic. Its optimizations include correct memory ordering, cache alignment, cached data members, modulo-free circular buffer arithmetic, and other performance-enhancing features. Although lock-free, its design is not entirely wait-free and spinning on full or empty states will occur.
+
+#### SPSCBuffer API
+
+- **`SPSCBuffer(std::size_t capacity)`** - Constructs a bounded SPSC ring buffer with the requested capacity. Capacity must be at least 1.
+
+- **`push(U&& value)`** - Inserts an element into the buffer, blocking by spinning until space is available.
+
+- **`try_push(U&& value) -> bool`** - Attempts to insert an element without spinning. Returns `true` on success and `false` if the buffer is full.
+
+- **`emplace(Args&&... args)`** - Constructs an element directly in the buffer from the provided arguments, blocking by spinning until space is available.
+
+- **`try_emplace(Args&&... args) -> bool`** - Attempts to construct an element in the buffer without blocking. Returns true on success and false if the buffer is full.
+
+- **`front() -> T*`** - Returns a pointer to the next element available to the consumer, or nullptr if the buffer is empty.
+
+- **`pop()`** - Removes and destroys the current front element. This assumes `front()` has already returned a non-null pointer.
+
+- **`capacity() const -> std::size_t`** - Returns the usable capacity of the buffer.
+
+- **`close()`** - Marks the buffer as closed, allowing the consumer to determine when the producer has finished producing elements.
+
+- **`closed() const -> bool`** - Returns whether the buffer has been marked closed.
 
 ### Variants (Namespace `ringbuffers::variants`)
 
