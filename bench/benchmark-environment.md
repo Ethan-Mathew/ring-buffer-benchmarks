@@ -15,7 +15,6 @@
 - **Build Type:** Release
 - **Benchmark Framework:** Google Benchmark
 - **Benchmark Output Format:** JSON
-- **Repository Commit:** `<commit hash>`
 
 ## Benchmark Configuration
 
